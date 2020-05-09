@@ -44,3 +44,5 @@ Once started, the server will listen in the port 8080
 ```shell
 $ docker run -ti -p 8080:8080 -v /local/path/to/monarca.jks:/monarca.jks -e IADB_JKS_PASS="00000001" -e IADB_CLIENT_ID="aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" -e IADB_CLIENT_SECRET="zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz" -e IADB_CITI_HOST="testing.citi.com" citi-proxy
 ``` 
+## How to use the proxy
+This proxy provides transparent access to CITI Connect APIs (W3C XML Digital Signatures and Encryption only). E.g., if you need to access to https://{CITI_HOST}/citiconnect/{env_name2}/paymentservices/v1/payment/enhancedinquiry, you should send the proper plain XML to http://localhost:8080/citiconnect/{env_name2}/paymentservices/v1/payment/enhancedinquiry and the proxy will take care of handling authentication tokens, encryption of the request and desencryption of the response.
