@@ -1,0 +1,17 @@
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%-5level] %logger{15} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <logger name="org.iadb" level="DEBUG">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+    <logger name="io.netty" level="DEBUG">
+        <appender-ref ref="STDOUT" />
+    </logger>
+    <logger name="org.apache.xml.security.encryption" level="DEBUG">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+    <logger name="io.netty.util.internal.PlatformDependent0" level="OFF"/>
+</configuration>

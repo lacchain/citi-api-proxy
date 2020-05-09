@@ -1,0 +1,11 @@
+.DS_Store
+.gradle/
+.idea/
+build/
+*.jks
+*.pem
+*.cer
+*.crt
+*.p12
+*.pfx
+*.key
