@@ -90,7 +90,7 @@ public class TokenHandlerVerticle extends AbstractVerticle {
         }
 
         public boolean isExpired() {
-            return (System.currentTimeMillis() - created) / 1000 < lifetime;
+            return (System.currentTimeMillis() - created) / 1000 >= lifetime;
         }
 
         public String getValue() {
