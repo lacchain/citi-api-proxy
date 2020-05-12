@@ -95,7 +95,7 @@ public class TokenHandlerVerticle extends AbstractVerticle {
         @Override
         public String toString() {
             return "Token{" +
-                    "value='" + value + '\'' +
+                    "value='****** (size:" + value.length() + ")'" +
                     ", lifetime=" + lifetime +
                     ", created=" + created +
                     '}';
