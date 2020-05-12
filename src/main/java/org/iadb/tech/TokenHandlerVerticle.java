@@ -9,12 +9,10 @@ import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +41,9 @@ public class TokenHandlerVerticle extends AbstractVerticle {
             if (tokens.containsKey(scope) && !tokens.get(scope).isExpired()) {
                 event.reply(tokens.get(scope).getValue());
             } else {
+                if (tokens.containsKey(scope)) {
+                    logger.info("OAuth token expired, requesting a new one");
+                }
                 eventBus.request(
                     "citi_connect",
                     new JsonObject()
@@ -58,7 +59,9 @@ public class TokenHandlerVerticle extends AbstractVerticle {
                                 if (!scope.equals(tokenScope)) {
                                     logger.warn("Scope requested ({}) doesn't match scope authorized ({})", scope, tokenScope);
                                 }
-                                tokens.put(scope, new Token(tokenValue, lifetime));
+                                Token newToken = new Token(tokenValue, lifetime);
+                                logger.info("New OAuth token: {}", newToken);
+                                tokens.put(scope, newToken);
                                 event.reply(tokenValue);
                             } catch (Exception e) {
                                 logger.error("Unable to parse token response", e);
@@ -87,7 +90,7 @@ public class TokenHandlerVerticle extends AbstractVerticle {
         }
 
         public boolean isExpired() {
-            return (System.currentTimeMillis() - created) / 1000 < lifetime;
+            return (System.currentTimeMillis() - created) / 1000 >= lifetime;
         }
 
         public String getValue() {
@@ -97,7 +100,7 @@ public class TokenHandlerVerticle extends AbstractVerticle {
         @Override
         public String toString() {
             return "Token{" +
-                    "value='" + value + '\'' +
+                    "value='****** (size:" + value.length() + ")'" +
                     ", lifetime=" + lifetime +
                     ", created=" + created +
                     '}';
