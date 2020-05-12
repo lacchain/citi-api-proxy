@@ -41,6 +41,9 @@ public class TokenHandlerVerticle extends AbstractVerticle {
             if (tokens.containsKey(scope) && !tokens.get(scope).isExpired()) {
                 event.reply(tokens.get(scope).getValue());
             } else {
+                if (tokens.containsKey(scope)) {
+                    logger.info("OAuth token expired, requesting a new one");
+                }
                 eventBus.request(
                     "citi_connect",
                     new JsonObject()
@@ -56,7 +59,9 @@ public class TokenHandlerVerticle extends AbstractVerticle {
                                 if (!scope.equals(tokenScope)) {
                                     logger.warn("Scope requested ({}) doesn't match scope authorized ({})", scope, tokenScope);
                                 }
-                                tokens.put(scope, new Token(tokenValue, lifetime));
+                                Token newToken = new Token(tokenValue, lifetime);
+                                logger.info("New OAuth token: {}", newToken);
+                                tokens.put(scope, newToken);
                                 event.reply(tokenValue);
                             } catch (Exception e) {
                                 logger.error("Unable to parse token response", e);
