@@ -114,7 +114,7 @@ public class CitiConnectVerticle extends AbstractVerticle {
                         try {
                             Document encryptedResponseDocument = documentBuilder.parse(new ByteArrayInputStream(ar.result().body().getBytes()));
                             Document responseDocument = decryptXml(encryptedResponseDocument, requestSignKey);
-                            //verifySignature(responseDocument, citiSignCertificate);
+                            verifySignature(responseDocument, citiSignCertificate);
                             event.reply(toString(responseDocument));
                         } catch (Exception e) {
                             logger.error("Response generation document failed", e);
