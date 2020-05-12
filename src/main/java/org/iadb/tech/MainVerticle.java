@@ -13,8 +13,6 @@ import io.vertx.ext.web.handler.BodyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class MainVerticle extends AbstractVerticle {
 
@@ -47,11 +45,8 @@ public class MainVerticle extends AbstractVerticle {
         router.route().handler(routingContext -> {
             String citiConnectPath = routingContext.request().path();
             HttpServerResponse response = routingContext.response();
-            //FIXME(diegoll): review token scope semantics
-            String scope = "/" + Stream.of(citiConnectPath.split("/")).skip(3).limit(2).collect(Collectors.joining("/"));
             vertx.eventBus().request(
-                "get_token",
-                new JsonObject().put("scope", scope),
+                "get_token", null,
                 (Handler<AsyncResult<Message<String>>>) getToken -> {
                     if (getToken.succeeded()) {
                         vertx.eventBus().request(
