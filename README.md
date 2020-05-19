@@ -38,6 +38,7 @@ The container expects mounted in `/monarca.jks` the Java KeyStore configured acc
   * **IADB_CLIENT_SECRET**: the assigned client secret
   * **IADB_CITI_HOST**: the host for redirecting the requests
   * **IADB_ALLOWED_ORIGIN_PATTERN**: the allowed origin pattern for [CORS](http://www.w3.org/TR/cors/) support (Default: `*`)
+  * **IADB_CITI_CONNECT_TIMEOUT**: the timeout, in millis, for every CitiConnect request (Default: `20000`)
 
 Once started, the server will listen in the port 8080
 

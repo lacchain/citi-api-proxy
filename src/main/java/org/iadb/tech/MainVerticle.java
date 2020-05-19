@@ -19,6 +19,7 @@ public class MainVerticle extends AbstractVerticle {
         String clientSecret = config().getString("clientSecret");
         String citiHost = config().getString("citiHost");
         String allowedOriginPattern = config().getString("allowedOriginPattern");
+        Long citiConnectRequestTimeout = config().getLong("citiConnectRequestTimeout");
 
         vertx.deployVerticle(new TokenHandlerVerticle());
         vertx.deployVerticle(
@@ -27,7 +28,8 @@ public class MainVerticle extends AbstractVerticle {
                         keystorePassword,
                         clientId,
                         clientSecret,
-                        citiHost
+                        citiHost,
+                        citiConnectRequestTimeout
                 )
         );
         vertx.deployVerticle(new CitiProxyServerVerticle(allowedOriginPattern));
