@@ -51,7 +51,6 @@ public class CitiConnectVerticle extends AbstractVerticle {
     private static final String REQUEST_JKS_ALIAS = "payload";
     private static final String CITI_JKS_ALIAS = "citi";
     private static final String CITI_SIGN_JKS_ALIAS = "citi-sign";
-    private static final int CITICONNECT_REQUEST_TIMEOUT = 4000;
 
     static {
         org.apache.xml.security.Init.init();
@@ -66,8 +65,14 @@ public class CitiConnectVerticle extends AbstractVerticle {
     private final String citiHost;
     private final JksOptions keyStoreOptions;
     private final DocumentBuilder documentBuilder;
+    private final Long citiconnectRequestTimeout;
 
-    public CitiConnectVerticle(Buffer keystoreBuffer, String keystorePassword, String clientId, String clientSecretKey, String citiHost) throws Exception {
+    public CitiConnectVerticle(Buffer keystoreBuffer,
+                               String keystorePassword,
+                               String clientId,
+                               String clientSecretKey,
+                               String citiHost,
+                               Long citiconnectRequestTimeout) throws Exception {
         KeyStore ks = KeyStore.getInstance("JKS");
         ks.load(new ByteArrayInputStream(keystoreBuffer.getBytes()), keystorePassword.toCharArray());
 
@@ -86,6 +91,7 @@ public class CitiConnectVerticle extends AbstractVerticle {
         this.clientId = clientId;
         this.clientSecretKey = clientSecretKey;
         this.citiHost = citiHost;
+        this.citiconnectRequestTimeout = citiconnectRequestTimeout;
     }
 
     @Override
@@ -110,7 +116,7 @@ public class CitiConnectVerticle extends AbstractVerticle {
                 httpMethod = HttpMethod.GET;
             }
             HttpRequest<Buffer> request = webClient.request(httpMethod, uri)
-                    .timeout(CITICONNECT_REQUEST_TIMEOUT)
+                    .timeout(citiconnectRequestTimeout)
                     .addQueryParam("client_id", clientId)
                     .putHeader(HttpHeaders.CONTENT_TYPE.toString(), "application/xml");
             if (body.containsKey("token")) {
