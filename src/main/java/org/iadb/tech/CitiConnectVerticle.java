@@ -67,7 +67,11 @@ public class CitiConnectVerticle extends AbstractVerticle {
     private final JksOptions keyStoreOptions;
     private final DocumentBuilder documentBuilder;
 
-    public CitiConnectVerticle(Buffer keystoreBuffer, String keystorePassword, String clientId, String clientSecretKey, String citiHost) throws Exception {
+    public CitiConnectVerticle(Buffer keystoreBuffer,
+                               String keystorePassword,
+                               String clientId,
+                               String clientSecretKey,
+                               String citiHost) throws Exception {
         KeyStore ks = KeyStore.getInstance("JKS");
         ks.load(new ByteArrayInputStream(keystoreBuffer.getBytes()), keystorePassword.toCharArray());
 
