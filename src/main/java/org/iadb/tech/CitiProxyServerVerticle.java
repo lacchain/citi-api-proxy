@@ -34,6 +34,7 @@ public class CitiProxyServerVerticle extends AbstractVerticle {
                                     new JsonObject()
                                             .put("uri", citiConnectPath)
                                             .put("token", getToken.result().body())
+                                            .put("http-method", routingContext.request().rawMethod())
                                             .put("request", routingContext.getBodyAsString()),
                                     (Handler<AsyncResult<Message<String>>>) citiConnect -> {
                                         if (citiConnect.succeeded()) {

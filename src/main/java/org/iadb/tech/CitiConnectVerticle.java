@@ -6,6 +6,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.JksOptions;
 import io.vertx.ext.web.client.HttpRequest;
@@ -98,8 +99,16 @@ public class CitiConnectVerticle extends AbstractVerticle {
             JsonObject body = event.body();
             logger.debug("citi_connect -> {}", body.encodePrettily());
             String uri = body.getString("uri");
-
-            HttpRequest<Buffer> request = webClient.post(uri)
+            HttpMethod httpMethod;
+            boolean hasBodyRequest = !body.getString("request").isEmpty();
+            if (body.containsKey("http-method")) {
+                httpMethod = HttpMethod.valueOf(body.getString("http-method"));
+            } else if (hasBodyRequest){
+                httpMethod = HttpMethod.POST;
+            } else {
+                httpMethod = HttpMethod.GET;
+            }
+            HttpRequest<Buffer> request = webClient.request(httpMethod, uri)
                     .addQueryParam("client_id", clientId)
                     .putHeader(HttpHeaders.CONTENT_TYPE.toString(), "application/xml");
             if (body.containsKey("token")) {
@@ -125,7 +134,7 @@ public class CitiConnectVerticle extends AbstractVerticle {
                         event.fail(-1, ar.cause().getMessage());
                     }
                 };
-                if (!body.getString("request").isEmpty()) {
+                if (hasBodyRequest) {
                     Document requestDocument = documentBuilder.parse(new ByteArrayInputStream(body.getString("request").getBytes()));
                     Document encryptedRequestDocument  = encryptXml(requestDocument, requestSignKey, requestCertificate, citiCertificate);
                     request.sendBuffer(Buffer.buffer(toString(encryptedRequestDocument)), citiConnectResponseHandler);
