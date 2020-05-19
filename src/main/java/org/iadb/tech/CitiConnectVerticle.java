@@ -1,6 +1,7 @@
 package org.iadb.tech;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.Message;
@@ -8,6 +9,7 @@ import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.JksOptions;
 import io.vertx.ext.web.client.HttpRequest;
+import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 import org.apache.xml.security.encryption.EncryptedData;
@@ -107,9 +109,7 @@ public class CitiConnectVerticle extends AbstractVerticle {
             }
 
             try {
-                Document requestDocument = documentBuilder.parse(new ByteArrayInputStream(body.getString("request").getBytes()));
-                Document encryptedRequestDocument  = encryptXml(requestDocument, requestSignKey, requestCertificate, citiCertificate);
-                request.sendBuffer(Buffer.buffer(toString(encryptedRequestDocument)), ar -> {
+                Handler<AsyncResult<HttpResponse<Buffer>>> citiConnectResponseHandler = ar -> {
                     if (ar.succeeded()) {
                         try {
                             Document encryptedResponseDocument = documentBuilder.parse(new ByteArrayInputStream(ar.result().body().getBytes()));
@@ -124,7 +124,14 @@ public class CitiConnectVerticle extends AbstractVerticle {
                         logger.error("Request failed", ar.cause());
                         event.fail(-1, ar.cause().getMessage());
                     }
-                });
+                };
+                if (!body.getString("request").isEmpty()) {
+                    Document requestDocument = documentBuilder.parse(new ByteArrayInputStream(body.getString("request").getBytes()));
+                    Document encryptedRequestDocument  = encryptXml(requestDocument, requestSignKey, requestCertificate, citiCertificate);
+                    request.sendBuffer(Buffer.buffer(toString(encryptedRequestDocument)), citiConnectResponseHandler);
+                } else {
+                    request.send(citiConnectResponseHandler);
+                }
             } catch (Exception e) {
                 logger.error("Request generation document failed", e);
                 event.fail(-1, e.getMessage());
