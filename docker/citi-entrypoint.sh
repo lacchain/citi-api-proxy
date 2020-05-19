@@ -7,7 +7,8 @@ cat > /conf.json <<_EOF_
   "keystorePassword" : "${IADB_JKS_PASS}",
   "clientId" : "${IADB_CLIENT_ID}",
   "clientSecret" : "${IADB_CLIENT_SECRET}",
-  "citiHost" : "${IADB_CITI_HOST}"
+  "citiHost" : "${IADB_CITI_HOST}",
+  "allowedOriginPattern" : "${IADB_ALLOWED_ORIGIN_PATTERN:-*}"
 }
 _EOF_
 
