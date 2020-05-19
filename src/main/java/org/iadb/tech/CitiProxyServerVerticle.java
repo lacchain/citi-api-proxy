@@ -10,6 +10,7 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CorsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,10 +18,17 @@ public class CitiProxyServerVerticle extends AbstractVerticle {
 
     private static final Logger logger = LoggerFactory.getLogger(CitiProxyServerVerticle.class);
 
+    private final String allowedOriginPattern;
+
+    public CitiProxyServerVerticle(String allowedOriginPattern) {
+        this.allowedOriginPattern = allowedOriginPattern;
+    }
+
     @Override
     public void start() {
         HttpServer server = vertx.createHttpServer();
         Router router = Router.router(vertx);
+        router.route().handler(CorsHandler.create(allowedOriginPattern));
         router.route().handler(BodyHandler.create());
         router.route().handler(routingContext -> {
             String citiConnectPath = routingContext.request().path();

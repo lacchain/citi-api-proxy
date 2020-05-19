@@ -18,6 +18,7 @@ public class MainVerticle extends AbstractVerticle {
         String clientId = config().getString("clientId");
         String clientSecret = config().getString("clientSecret");
         String citiHost = config().getString("citiHost");
+        String allowedOriginPattern = config().getString("allowedOriginPattern");
 
         vertx.deployVerticle(new TokenHandlerVerticle());
         vertx.deployVerticle(
@@ -29,6 +30,6 @@ public class MainVerticle extends AbstractVerticle {
                         citiHost
                 )
         );
-        vertx.deployVerticle(new CitiProxyServerVerticle());
+        vertx.deployVerticle(new CitiProxyServerVerticle(allowedOriginPattern));
     }
 }

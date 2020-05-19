@@ -37,6 +37,7 @@ The container expects mounted in `/monarca.jks` the Java KeyStore configured acc
   * **IADB_CLIENT_ID**: the assigned client ID
   * **IADB_CLIENT_SECRET**: the assigned client secret
   * **IADB_CITI_HOST**: the host for redirecting the requests
+  * **IADB_ALLOWED_ORIGIN_PATTERN**: the allowed origin pattern for [CORS](http://www.w3.org/TR/cors/) support (Default: `*`)
 
 Once started, the server will listen in the port 8080
 
