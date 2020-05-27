@@ -46,8 +46,13 @@ public class CitiProxyServerVerticle extends AbstractVerticle {
                                             .put("request", routingContext.getBodyAsString()),
                                     (Handler<AsyncResult<Message<String>>>) citiConnect -> {
                                         if (citiConnect.succeeded()) {
-                                            response
-                                                    .putHeader(HttpHeaders.CONTENT_TYPE, "application/xml")
+                                            String statusCode = citiConnect.result().headers().get(CitiConnectVerticle.HEADER_STATUS_CODE);
+                                            String statusMessage = citiConnect.result().headers().get(CitiConnectVerticle.HEADER_STATUS_MESSAGE);
+                                            citiConnect.result().headers().remove(CitiConnectVerticle.HEADER_STATUS_CODE).remove(CitiConnectVerticle.HEADER_STATUS_MESSAGE);
+
+                                            response.headers().addAll(citiConnect.result().headers());
+                                            response.setStatusCode(Integer.parseInt(statusCode))
+                                                    .setStatusMessage(statusMessage)
                                                     .end(citiConnect.result().body());
                                         } else {
                                             response.setStatusCode(500).setStatusMessage("Internal Server Error").end();

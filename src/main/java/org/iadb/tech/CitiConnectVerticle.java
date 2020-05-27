@@ -4,6 +4,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
@@ -46,6 +47,9 @@ import java.security.*;
 import java.security.cert.X509Certificate;
 
 public class CitiConnectVerticle extends AbstractVerticle {
+
+    public static final String HEADER_STATUS_CODE = "status-code";
+    public static final String HEADER_STATUS_MESSAGE = "status-message";
 
     private static final Logger logger = LoggerFactory.getLogger(CitiConnectVerticle.class);
     private static final String REQUEST_JKS_ALIAS = "payload";
@@ -129,10 +133,19 @@ public class CitiConnectVerticle extends AbstractVerticle {
                 Handler<AsyncResult<HttpResponse<Buffer>>> citiConnectResponseHandler = ar -> {
                     if (ar.succeeded()) {
                         try {
-                            Document encryptedResponseDocument = documentBuilder.parse(new ByteArrayInputStream(ar.result().body().getBytes()));
-                            Document responseDocument = decryptXml(encryptedResponseDocument, requestSignKey);
-                            verifySignature(responseDocument, citiSignCertificate);
-                            event.reply(toString(responseDocument));
+                            Document responseDocument = documentBuilder.parse(new ByteArrayInputStream(ar.result().body().getBytes()));
+                            try {
+                                Document decryptedResponseDocument = decryptXml(responseDocument, requestSignKey);
+                                verifySignature(decryptedResponseDocument, citiSignCertificate);
+                                responseDocument = decryptedResponseDocument;
+                            } catch (NotEncryptedException e) {
+                                logger.warn("Not encrypted Citi response", e);
+                            }
+                            DeliveryOptions replyOptions = new DeliveryOptions();
+                            replyOptions.setHeaders(ar.result().headers());
+                            replyOptions.addHeader(HEADER_STATUS_CODE, String.valueOf(ar.result().statusCode()));
+                            replyOptions.addHeader(HEADER_STATUS_MESSAGE, ar.result().statusMessage());
+                            event.reply(toString(responseDocument), replyOptions);
                         } catch (Exception e) {
                             logger.error("Response generation document failed", e);
                             event.fail(-1, e.getMessage());
@@ -205,17 +218,17 @@ public class CitiConnectVerticle extends AbstractVerticle {
         } else {
             NodeList childs = docRoot.getElementsByTagNameNS("http://www.w3.org/2001/04/xmlenc#", "EncryptedData");
             if (childs == null || childs.getLength() == 0) {
-                throw new Exception("Encrypted Data not found on XML Document while parsing to decrypt");
+                throw new NotEncryptedException("Encrypted Data not found on XML Document while parsing to decrypt");
             }
             dataEL = childs.item(0);
         }
         if (dataEL == null) {
-            throw new Exception("Encrypted Data not found on XML Document while parsing to decrypt");
+            throw new NotEncryptedException("Encrypted Data not found on XML Document while parsing to decrypt");
         }
         NodeList keyList = ((Element) dataEL).getElementsByTagNameNS("http://www.w3.org/2001/04/xmlenc#",
                 "EncryptedKey");
         if (keyList == null || keyList.getLength() == 0) {
-            throw new Exception("Encrypted Key not found on XML Document while parsing to decrypt");
+            throw new NotEncryptedException("Encrypted Key not found on XML Document while parsing to decrypt");
         }
         keyEL = keyList.item(0);
         XMLCipher cipher = XMLCipher.getInstance();
@@ -291,4 +304,9 @@ public class CitiConnectVerticle extends AbstractVerticle {
         return writer.getBuffer().toString();
     }
 
+    private static class NotEncryptedException extends Exception {
+        public NotEncryptedException(String message) {
+            super(message);
+        }
+    }
 }
