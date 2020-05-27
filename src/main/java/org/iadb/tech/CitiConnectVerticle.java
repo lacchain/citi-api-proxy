@@ -4,6 +4,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
@@ -46,6 +47,9 @@ import java.security.*;
 import java.security.cert.X509Certificate;
 
 public class CitiConnectVerticle extends AbstractVerticle {
+
+    public static final String HEADER_STATUS_CODE = "status-code";
+    public static final String HEADER_STATUS_MESSAGE = "status-message";
 
     private static final Logger logger = LoggerFactory.getLogger(CitiConnectVerticle.class);
     private static final String REQUEST_JKS_ALIAS = "payload";
@@ -137,7 +141,11 @@ public class CitiConnectVerticle extends AbstractVerticle {
                             } catch (NotEncryptedException e) {
                                 logger.warn("Not encrypted Citi response", e);
                             }
-                            event.reply(toString(responseDocument));
+                            DeliveryOptions replyOptions = new DeliveryOptions();
+                            replyOptions.setHeaders(ar.result().headers());
+                            replyOptions.addHeader(HEADER_STATUS_CODE, String.valueOf(ar.result().statusCode()));
+                            replyOptions.addHeader(HEADER_STATUS_MESSAGE, ar.result().statusMessage());
+                            event.reply(toString(responseDocument), replyOptions);
                         } catch (Exception e) {
                             logger.error("Response generation document failed", e);
                             event.fail(-1, e.getMessage());
