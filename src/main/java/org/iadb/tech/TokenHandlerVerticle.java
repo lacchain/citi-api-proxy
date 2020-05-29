@@ -5,6 +5,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,7 @@ public class TokenHandlerVerticle extends AbstractVerticle {
                             .put("request", OAUTH_REQUEST),
                     (Handler<AsyncResult<Message<String>>>) reply -> {
                         if (reply.succeeded()) {
+                            logger.info("Oauth request response headers {}", reply.result().headers());
                             try {
                                 Document tokenResponse = tokenResponseBuilder.parse(new ByteArrayInputStream(reply.result().body().getBytes()));
                                 String tokenValue = tokenResponse.getElementsByTagName("access_token").item(0).getTextContent();
@@ -61,8 +63,9 @@ public class TokenHandlerVerticle extends AbstractVerticle {
                                 event.fail(-1, e.getMessage());
                             }
                         } else {
-                            logger.error("citi_connect for token failed", reply.cause());
-                            event.fail(-1, reply.cause().getMessage());
+                            ReplyException cause = (ReplyException) reply.cause();
+                            logger.error("citi_connect for token failed", cause);
+                            event.fail(cause.failureCode(), cause.getMessage());
                         }
                     }
                 );
