@@ -45,6 +45,7 @@ import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.security.*;
 import java.security.cert.X509Certificate;
+import java.util.concurrent.TimeoutException;
 
 public class CitiConnectVerticle extends AbstractVerticle {
 
@@ -151,8 +152,12 @@ public class CitiConnectVerticle extends AbstractVerticle {
                             event.fail(-1, e.getMessage());
                         }
                     } else {
+                        int failureCode = -1;
+                        if (ar.cause() instanceof TimeoutException) {
+                            failureCode = 408;
+                        }
                         logger.error("Request failed", ar.cause());
-                        event.fail(-1, ar.cause().getMessage());
+                        event.fail(failureCode, ar.cause().getMessage());
                     }
                 };
                 if (hasBodyRequest) {

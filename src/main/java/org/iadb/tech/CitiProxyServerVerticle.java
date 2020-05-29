@@ -4,7 +4,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
-import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
@@ -60,7 +60,14 @@ public class CitiProxyServerVerticle extends AbstractVerticle {
                                     }
                             );
                         } else {
-                            response.setStatusCode(500).setStatusMessage("Internal Server Error").end();
+                            ReplyException cause = (ReplyException) getToken.cause();
+                            int statusCode = 500;
+                            String statusMessage = "Internal Server Error";
+                            if (cause.failureCode() == 408) {
+                                statusCode = 408;
+                                statusMessage = "Request Timeout";
+                            }
+                            response.setStatusCode(statusCode).setStatusMessage(statusMessage).end();
                         }
                     }
             );
