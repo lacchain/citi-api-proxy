@@ -48,6 +48,7 @@ public class TokenHandlerVerticle extends AbstractVerticle {
                             .put("request", OAUTH_REQUEST),
                     (Handler<AsyncResult<Message<String>>>) reply -> {
                         if (reply.succeeded()) {
+                            logger.info("Oauth request response headers {}", reply.result().headers());
                             try {
                                 Document tokenResponse = tokenResponseBuilder.parse(new ByteArrayInputStream(reply.result().body().getBytes()));
                                 String tokenValue = tokenResponse.getElementsByTagName("access_token").item(0).getTextContent();
