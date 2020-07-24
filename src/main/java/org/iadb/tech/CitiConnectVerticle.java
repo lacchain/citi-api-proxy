@@ -143,7 +143,7 @@ public class CitiConnectVerticle extends AbstractVerticle {
                                 logger.warn("Not encrypted Citi response", e);
                             }
                             DeliveryOptions replyOptions = new DeliveryOptions();
-                            replyOptions.setHeaders(ar.result().headers());
+                            replyOptions.setHeaders(ar.result().headers().remove(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
                             replyOptions.addHeader(HEADER_STATUS_CODE, String.valueOf(ar.result().statusCode()));
                             replyOptions.addHeader(HEADER_STATUS_MESSAGE, ar.result().statusMessage());
                             event.reply(toString(responseDocument), replyOptions);
