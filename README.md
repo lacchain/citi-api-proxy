@@ -37,6 +37,7 @@ The container expects mounted in `/monarca.jks` the Java KeyStore configured acc
   * **IADB_CLIENT_ID**: the assigned client ID
   * **IADB_CLIENT_SECRET**: the assigned client secret
   * **IADB_CITI_HOST**: the host for redirecting the requests
+  * **IADB_TOKEN_PATH**: the path for getting the OAuth2 token
   * **IADB_ALLOWED_ORIGIN_PATTERN**: the allowed origin pattern for [CORS](http://www.w3.org/TR/cors/) support (Default: `*`)
   * **IADB_CITI_CONNECT_TIMEOUT**: the timeout, in millis, for every CitiConnect request (Default: `20000`)
 
@@ -44,7 +45,7 @@ Once started, the server will listen in the port 8080
 
 ### Docker run example
 ```shell
-$ docker run -ti -p 8080:8080 -v /local/path/to/monarca.jks:/monarca.jks -e IADB_JKS_PASS="00000001" -e IADB_CLIENT_ID="aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" -e IADB_CLIENT_SECRET="zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz" -e IADB_CITI_HOST="testing.citi.com" citi-proxy
+$ docker run -ti -p 8080:8080 -v /local/path/to/monarca.jks:/monarca.jks -e IADB_JKS_PASS="00000001" -e IADB_CLIENT_ID="aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" -e IADB_CLIENT_SECRET="zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz" -e IADB_CITI_HOST="testing.citi.com" -e IADB_TOKEN_PATH="/oauth/token" citi-proxy
 ``` 
 ## How to use the proxy
 This proxy provides transparent access to CITI Connect APIs (W3C XML Digital Signatures and Encryption only). E.g., if you need to access to https://{CITI_HOST}/citiconnect/{env_name2}/paymentservices/v1/payment/enhancedinquiry, you should send the proper plain XML to http://localhost:8080/citiconnect/{env_name2}/paymentservices/v1/payment/enhancedinquiry and the proxy will take care of handling authentication tokens, encryption of the request and desencryption of the response.
