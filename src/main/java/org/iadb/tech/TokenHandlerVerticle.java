@@ -25,7 +25,12 @@ public class TokenHandlerVerticle extends AbstractVerticle {
             "    <scope>/authenticationservices/v1</scope>\n" +
             "    <sourceApplication>CCF</sourceApplication>\n" +
             "</oAuthToken>";
+    private final String tokenPath;
     private Token currentToken;
+
+    public TokenHandlerVerticle(String tokenPath) {
+        this.tokenPath = tokenPath;
+    }
 
     @Override
     public void start() throws Exception {
@@ -45,7 +50,7 @@ public class TokenHandlerVerticle extends AbstractVerticle {
                 eventBus.request(
                     "citi_connect",
                     new JsonObject()
-                            .put("uri", "/citiconnect/sb/authenticationservices/v2/oauth/token")
+                            .put("uri", tokenPath)
                             .put("request", OAUTH_REQUEST),
                     (Handler<AsyncResult<Message<String>>>) reply -> {
                         if (reply.succeeded()) {

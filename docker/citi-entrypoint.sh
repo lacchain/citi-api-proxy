@@ -8,6 +8,7 @@ cat > /conf.json <<_EOF_
   "clientId" : "${IADB_CLIENT_ID}",
   "clientSecret" : "${IADB_CLIENT_SECRET}",
   "citiHost" : "${IADB_CITI_HOST}",
+  "tokenPath" : "${IADB_TOKEN_PATH}",
   "allowedOriginPattern" : "${IADB_ALLOWED_ORIGIN_PATTERN:-*}",
   "citiConnectRequestTimeout" : ${IADB_CITI_CONNECT_TIMEOUT:-20000}
 }

@@ -18,10 +18,11 @@ public class MainVerticle extends AbstractVerticle {
         String clientId = config().getString("clientId");
         String clientSecret = config().getString("clientSecret");
         String citiHost = config().getString("citiHost");
+        String tokenPath = config().getString("tokenPath");
         String allowedOriginPattern = config().getString("allowedOriginPattern");
         Long citiConnectRequestTimeout = config().getLong("citiConnectRequestTimeout");
 
-        vertx.deployVerticle(new TokenHandlerVerticle());
+        vertx.deployVerticle(new TokenHandlerVerticle(tokenPath));
         vertx.deployVerticle(
                 new CitiConnectVerticle(
                         vertx.fileSystem().readFileBlocking(keystorePath),
