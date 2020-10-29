@@ -141,6 +141,8 @@ public class CitiConnectVerticle extends AbstractVerticle {
                                 responseDocument = decryptedResponseDocument;
                             } catch (NotEncryptedException e) {
                                 logger.warn("Not encrypted Citi response", e);
+                                logger.warn("Response: {}", toString(responseDocument));
+                                logger.warn("Headers: {}", ar.result().headers());
                             }
                             DeliveryOptions replyOptions = new DeliveryOptions();
                             replyOptions.setHeaders(ar.result().headers().remove(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
