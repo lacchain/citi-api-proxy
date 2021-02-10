@@ -50,7 +50,7 @@ $ docker run -ti -p 8080:8080 -v /local/path/to/monarca.jks:/monarca.jks -e IADB
 ## How to use the proxy
 This proxy provides transparent access to CITI Connect APIs (W3C XML Digital Signatures and Encryption only). E.g., if you need to access to https://{CITI_HOST}/citiconnect/{env_name2}/paymentservices/v1/payment/enhancedinquiry, you should send the proper plain XML to http://localhost:8080/citiconnect/{env_name2}/paymentservices/v1/payment/enhancedinquiry and the proxy will take care of handling authentication tokens, encryption of the request and desencryption of the response.
 
-## Copyright 2020 LACChain
+## Copyright 2021 LACChain
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
